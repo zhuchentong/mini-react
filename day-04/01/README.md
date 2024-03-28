@@ -1,4 +1,4 @@
-Day-03: 03.重构function component
+Day-04: 01.实现事件绑定
 ---
 
-- 分别提取`updateFunctionComponent`和`updateHostComponent`来分离针对一般组件和函数式组件的处理逻辑。
+- 实现事件绑定逻辑，默认以on开头的属性为事件，获取所有`on`开头的属性，获取事件名称通过`addEventListener`进行事件绑定即可。

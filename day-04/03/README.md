@@ -1,4 +1,6 @@
-Day-03: 03.重构function component
+Day-04: 03.重构props
 ---
 
-- 分别提取`updateFunctionComponent`和`updateHostComponent`来分离针对一般组件和函数式组件的处理逻辑。
+- WipRoot: (work in process)当前任务调度中进行遍历的根节点
+- currentRoot: 用来生成的根节点，作为旧节点与新节点进行对比。
+
