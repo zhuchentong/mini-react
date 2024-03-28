@@ -1,6 +1,5 @@
-Day-04: 03.重构props
+Day-05: 01.diff更新children
 ---
 
-- WipRoot: (work in process)当前任务调度中进行遍历的根节点
-- currentRoot: 用来生成的根节点，作为旧节点与新节点进行对比。
+- 之前通过对比新旧节点，通过判断isSameType为false时创建新节点，但是存在的问题时，没有对旧节点进行删除，所有需要在判断isSameType为false后对旧节点进行收集，然后在commitRoot时进行统一删除即可。
 
