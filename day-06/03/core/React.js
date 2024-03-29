@@ -51,15 +51,23 @@ function useState(initial){
 
    currentFiber.stateHooks = stateHooks
   function setState(action){
-    const queueState = stateHook.queue.reduce((state,action)=>{
-      return typeof action === 'function'? action(state): action
-    },stateHook.state)
-
-    const eagerState = typeof action === 'function'?action(queueState):action
-
-    if(eagerState === queueState){
-      return 
+    const prevEagerState = stateHook.eagerState ?? stateHook.state
+    const nextEagerState = typeof action === 'function'? action(prevEagerState): action
+   
+    if(nextEagerState === prevEagerState){
+       return 
+    }else{
+       stateHook.eagerState = nextEagerState
     }
+    // const queueState = stateHook.queue.reduce((state,action)=>{
+    //   return typeof action === 'function'? action(state): action
+    // },stateHook.state)
+
+    // const eagerState = typeof action === 'function'?action(queueState):action
+
+    // if(eagerState === queueState){
+    //   return 
+    // }
 
     stateHook.queue.push(typeof action === 'function'?action:()=>action)
 

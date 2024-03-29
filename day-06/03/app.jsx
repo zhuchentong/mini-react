@@ -22,10 +22,9 @@ function HelloButton1() {
   function onClick() {
     count++;
     props = {};
-    updateValue1(v=>1);
+    updateValue1(v=>2);
     updateValue1(v=>2)
     updateValue1(v=>3)
-    updateValue1(v=>1)
     updateValue1(v=>2)
   }
 
