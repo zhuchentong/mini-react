@@ -289,7 +289,7 @@ function commitRoot() {
   deletions = [];
 }
 
-function useEffect(callback, deps) {
+function useEffect(callback, deps = []) {
   const effectHook = {
     callback,
     deps,
@@ -299,39 +299,34 @@ function useEffect(callback, deps) {
 }
 
 function commitEffectHooks() {
-  const run = (fiber) => {
+  const runEffect = (fiber) => {
     if (!fiber) {
       return;
     }
 
     if (fiber.effectHooks?.length) {
-      fiber.effectHooks.forEach((effectHook) => {
+      fiber.effectHooks.forEach((effectHook, hookIndex) => {
         if (!fiber.alternate) {
-          effectHook.callback();
-        } 
-        else {
-          const prevEffectHooks = fiber.alternate.effectHooks;
+            effectHook.callback();
+        } else {
+          const prevEffectHook = fiber.alternate.effectHooks[hookIndex];
 
-          prevEffectHooks.forEach((prevEffectHook, hookIndex) => {
-            const needUpdate =  prevEffectHook.deps.some(
-              (dep, index) =>{
-                return  dep !== effectHook.deps[index]
-              }
-            );
-
-            if (needUpdate) {
-              effectHook.callback();
-            }
+          const needUpdate = prevEffectHook.deps.some((dep, index) => {
+            return dep !== effectHook.deps[index];
           });
+
+          if (needUpdate) {
+            effectHook.callback();
+          }
         }
       });
     }
 
-    run(fiber.child);
-    run(fiber.sibling);
+    runEffect(fiber.child);
+    runEffect(fiber.sibling);
   };
 
-  run(wipRoot);
+  runEffect(wipRoot);
 }
 
 function commitWork(fiber) {
