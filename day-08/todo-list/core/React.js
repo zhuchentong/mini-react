@@ -357,7 +357,7 @@ function commitWork(fiber) {
     fiberParent = fiberParent.parent;
   }
 
-  if (fiber.effectTag === "update") {
+  if (fiber.effectTag === "update" && fiber.dom) {
     updateProps(fiber.dom, fiber.props, fiber.alternate?.props);
   } else if (fiber.effectTag === "placement") {
     if (fiber.dom) {
@@ -386,6 +386,10 @@ function workLoop(deadline) {
   // 当任务执行完时（nextWorkUnit为null时）以及 root节点不为空时进行提交渲染
   if (!nextWorkUnit && wipRoot) {
     commitRoot();
+
+    if (nextWorkUnit) {
+      wipRoot = currentRoot;
+    }
   }
 
   window.requestIdleCallback(workLoop);

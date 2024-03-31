@@ -1,92 +1,149 @@
 import React from "./core/React.js";
+import "./style.css";
 
-let count = 20;
-let props = {
-  id: "33333",
-};
-
-function HelloWorld({ content }) {
-  return <div>hello: {content}</div>;
-}
-
-const D1 = <div>d1 for me</div>;
-
-const D2 = <div>d2 for you</div>;
-
-const D3 = <div>d3 for us</div>;
-
-const D4 = <div>d4 for who</div>;
-
-function HelloButton1() {
-  const [value1, updateValue1] = React.useState(100);
-  const [value2, updateValue2] = React.useState(100);
-
-  React.useEffect(()=>{
-    console.log('init')
-  },[])
-
-  React.useEffect(()=>{
-    console.log('update value1')
-    return ()=>{
-      console.log('clean value 1')
-    }
-  },[value1])
-
-  React.useEffect(()=>{
-    console.log('update value2')
-     return ()=>{
-      console.log('clean value 2')
-    }
-  },[value2])
-
-  function onClick() {
-    count++;
-    props = {};
-    updateValue1(v=>v+1);
-    // updateValue2(v=>v+2)
-  }
-
+function TodoItem({ item, onFinish, onCancel, onRemove }) {
   return (
-    <div>
-      <button {...props} onClick={onClick}>
-        button 1:{value1} -
-        button 2:{value2}
-      </button>
-    </div>
-  );
-}
-
-function HelloButton2() {
-  const [value, updateValue] = React.useState("Hello");
-  console.log("current component: button 2");
-  function onClick() {
-    count++;
-    props = {};
-    updateValue((x) => x + "!");
-  }
-
-  return (
-    <div>
-      <button {...props} onClick={onClick}>
-        button 2: {value}
-      </button>
+    <div className={`task-item ${item.state}`}>
+      <div style="min-width: 100px;">{item.title}</div>
+      <div>
+        {item.state === "active" && (
+          <button onClick={() => onFinish(item.id)}>完成</button>
+        )}
+        {item.state === "finished" && (
+          <button onClick={() => onCancel(item.id)}>取消</button>
+        )}
+        <button onClick={() => onRemove(item.id)}>删除</button>
+      </div>
     </div>
   );
 }
 
 function App() {
-  const update = React.update();
-  console.log("current component: button app");
-  function onClick() {
-    count++;
-    update();
+  const [list, setList] = React.useState([]);
+  const [text, setText] = React.useState("");
+  const [filter, setFilter] = React.useState("all");
+
+  React.useEffect(() => {
+    const taskList = localStorage.getItem("task-list");
+    if (taskList) {
+      setList(JSON.parse(taskList));
+    }
+  }, []);
+
+  React.useEffect(() => {
+    localStorage.setItem("task-list", JSON.stringify(list));
+  }, [list]);
+
+  function getRamdomId() {
+    return Math.random().toString(32).slice(2);
+  }
+
+  function createItem(title) {
+    return {
+      id: getRamdomId(),
+      state: "active",
+      title,
+    };
+  }
+
+  function onFinish(id) {
+    setList(
+      list.map((item) => {
+        if (item.id === id) {
+          item.state = "finished";
+        }
+
+        return item;
+      })
+    );
+  }
+
+  function onCancel(id) {
+    setList(
+      list.map((item) => {
+        if (item.id === id) {
+          item.state = "active";
+        }
+
+        return item;
+      })
+    );
+  }
+
+  function onRemove(id) {
+    setList(list.filter((item) => item.id !== id));
+  }
+
+  function onAdd() {
+    if (text.trim()) {
+      setList([...list, createItem(text)]);
+      setText("");
+    }
   }
 
   return (
     <div>
-      <button onClick={onClick}>button app: {count}</button>
-      <HelloButton1></HelloButton1>
-      <HelloButton2></HelloButton2>
+      <h1>TODO-LIST</h1>
+      <div>
+        <input value={text} onChange={(e) => setText(e.target.value)}></input>
+        <button onClick={() => onAdd()}>添加</button>
+        <button>保存</button>
+      </div>
+      <div>
+        <input
+          type="radio"
+          name="filter"
+          id="all"
+          checked={filter === "all"}
+          onChange={() => setFilter("all")}
+        >
+          all
+        </input>
+        <label htmlFor="all">all</label>
+
+        <input
+          type="radio"
+          name="filter"
+          id="active"
+          checked={filter === "active"}
+          onChange={() => setFilter("active")}
+        >
+          active
+        </input>
+        <label htmlFor="active">active</label>
+
+        <input
+          type="radio"
+          name="filter"
+          id="finish"
+          checked={filter === "finished"}
+          onChange={() => setFilter("finished")}
+        >
+          finished
+        </input>
+        <label htmlFor="finish">finish</label>
+      </div>
+      <div>
+        {...list
+          .filter((item) => {
+            switch (filter) {
+              case "active":
+                return item.state === "active";
+              case "finished":
+                return item.state === "finished";
+              default:
+                return true;
+            }
+          })
+          .map((item) => (
+            <TodoItem
+              item={item}
+              onCancel={onCancel}
+              onFinish={onFinish}
+              onRemove={onRemove}
+            ></TodoItem>
+          ))}
+      </div>
     </div>
   );
 }
